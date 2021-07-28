@@ -1,6 +1,6 @@
 事件循环中的这样一次遍历被称为一个 tick。每个事件就只是一个回调函数。
 
-```
+```javascript
 console.log('Hi');
 setTimeout(function cb1() { 
     console.log('cb1');
@@ -80,3 +80,32 @@ console.log('Bye');
 
 ![图片](640-20210728103658918.gif)
 
+#### setTimeout(…) 工作原理
+
+需要注意的是 setTimeout(…) 并没有自动把回调添加到事件循环队列。它创建了一个定时器。当定时器过期，宿主环境会把回调函数添加到事件循环队列中，然后，将会在未来的某个 tick 取出并执行该回调。查看如下代码：
+
+```javascript
+setTimeout(myCallback, 1000);
+```
+
+这并不意味着 1 秒之后会执行 myCallback 回调而是在 1 秒后将其添加到回调队列。然而，该队列有可能在之前就添加了其它的事件－所以回调就会被阻塞。
+
+有相当一部分的文章和教程开始会建议你使用 setTimeout(callback, 0) 来书写 JavaScript 异步代码。那么，现在你明白了事件循环和 setTimeout 的原理：调用 setTimeout 把其第二个参数设置为 0 表示延迟执行回调直到调用栈被清空。
+
+查看如下代码：
+
+```javascript
+console.log('Hi');
+setTimeout(function() {
+    console.log('callback');
+}, 0);
+console.log('Bye');
+```
+
+虽然定时时间设定为 0 毫秒， 但是控制台中的结果将会如下显示：
+
+```
+Hi
+Bye
+callback
+```
